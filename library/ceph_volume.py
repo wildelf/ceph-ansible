@@ -181,20 +181,21 @@ def batch(module):
     crush_device_class = module.params.get('crush_device_class', None)
     dmcrypt = module.params['dmcrypt']
     osds_per_device = module.params['osds_per_device']
+    subcommand = "batch"
 
     if not batch_devices:
         module.fail_json(
             msg='batch_devices must be provided if action is "batch"', changed=False, rc=1)  # noqa 4502
 
-    cmd = [
-        'ceph-volume',
-        '--cluster',
-        cluster,
-        'lvm',
-        'batch',
-        '--%s' % objectstore,
-        '--yes',
-    ]
+    if "CEPH_CONTAINER_IMAGE" in os.environ:
+        container_image = os.getenv("CEPH_CONTAINER_IMAGE")
+    else:
+        container_image = None
+
+    cmd = ceph_volume_cmd(subcommand, container_image, cluster)
+    cmd.extend(["--%s" % objectstore])
+    cmd.extend("--yes")
+    cmd.extend("--no-systemd ")
 
     if crush_device_class:
         cmd.extend(["--crush-device-class", crush_device_class])
