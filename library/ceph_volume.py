@@ -95,12 +95,6 @@ options:
             - Only applicable if action is 'batch'.
         required: false
         default: 1
-    containerized:
-        description:
-            - Wether or not this is a containerized cluster. The value is
-            assigned or not depending on how the playbook runs.
-        required: false
-        default: None
 
 author:
     - Andrew Schoen (@andrewschoen)
@@ -472,7 +466,6 @@ def run_module():
         dmcrypt=dict(type='bool', required=False, default=False),
         batch_devices=dict(type='list', required=False, default=[]),
         osds_per_device=dict(type='int', required=False, default=1),
-        containerized=dict(type='str', required=False, default=False),
     )
 
     module = AnsibleModule(
