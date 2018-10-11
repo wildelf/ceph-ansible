@@ -91,25 +91,16 @@ class ActionModule(ActionBase):
             if host_vars["osd_group_name"] in host_vars["group_names"]:
                 notario.validate(host_vars, osd_options, defined_keys=True)
                 notario_store['osd_objectstore'] = host_vars["osd_objectstore"]
-                if host_vars["osd_scenario"] == "collocated":
-                    if not host_vars.get("osd_auto_discovery", False):
-                        notario.validate(
-                            host_vars, collocated_osd_scenario, defined_keys=True)  # noqa E501
 
-                if host_vars["osd_scenario"] == "non-collocated":
+                if host_vars.get("devices"):
                     notario.validate(
-                        host_vars, non_collocated_osd_scenario, defined_keys=True)  # noqa E501
-
-                if host_vars["osd_scenario"] == "lvm":
-                    if host_vars.get("devices"):
-                        notario.validate(
-                            host_vars, lvm_batch_scenario, defined_keys=True)
-                    elif notario_store['osd_objectstore'] == 'filestore':
-                        notario.validate(
-                            host_vars, lvm_filestore_scenario, defined_keys=True)  # noqa E501
-                    elif notario_store['osd_objectstore'] == 'bluestore':
-                        notario.validate(
-                            host_vars, lvm_bluestore_scenario, defined_keys=True)  # noqa E501
+                        host_vars, lvm_batch_scenario, defined_keys=True)
+                elif notario_store['osd_objectstore'] == 'filestore':
+                    notario.validate(
+                        host_vars, lvm_filestore_scenario, defined_keys=True)  # noqa E501
+                elif notario_store['osd_objectstore'] == 'bluestore':
+                    notario.validate(
+                        host_vars, lvm_bluestore_scenario, defined_keys=True)  # noqa E501
 
         except Invalid as error:
             display.vvvv("Notario Failure: %s" % str(error))
@@ -175,11 +166,6 @@ def validate_monitor_options(value):
 
     assert any([monitor_address_given, monitor_address_block_given,
                 monitor_interface_given]), msg
-
-
-def validate_osd_scenarios(value):
-    assert value in ["collocated", "non-collocated",
-                     "lvm"], "osd_scenario must be set to 'collocated', 'non-collocated' or 'lvm'"  # noqa E501
 
 
 def validate_objectstore(value):
@@ -250,15 +236,6 @@ rados_options = (
 osd_options = (
     (optional("dmcrypt"), types.boolean),
     (optional("osd_auto_discovery"), types.boolean),
-    ("osd_scenario", validate_osd_scenarios),
-)
-
-collocated_osd_scenario = ("devices", iterables.AllItems(types.string))
-
-non_collocated_osd_scenario = (
-    (optional("bluestore_wal_devices"), iterables.AllItems(types.string)),
-    (optional("dedicated_devices"), iterables.AllItems(types.string)),
-    ("devices", iterables.AllItems(types.string)),
 )
 
 lvm_batch_scenario = ("devices", iterables.AllItems(types.string))
