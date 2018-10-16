@@ -235,7 +235,6 @@ rados_options = (
 
 osd_options = (
     (optional("dmcrypt"), types.boolean),
-    (optional("osd_auto_discovery"), types.boolean),
 )
 
 lvm_batch_scenario = ("devices", iterables.AllItems(types.string))
