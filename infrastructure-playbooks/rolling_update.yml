@@ -123,6 +123,15 @@
       when:
         - not containerized_deployment
 
+    - name: stop ceph mgr
+      systemd:
+        name: ceph-mgr@{{ ansible_hostname }}
+        state: stopped
+        enabled: yes
+      ignore_errors: True # if no mgr collocated with mons
+      when:
+        - not containerized_deployment
+
   roles:
     - ceph-defaults
     - ceph-handler
@@ -130,6 +139,8 @@
     - { role: ceph-docker-common, when: containerized_deployment }
     - ceph-config
     - ceph-mon
+    - role: ceph-mgr
+      when: groups.get(mgr_group_name, []) | length == 0
 
   post_tasks:
     - name: start ceph mon
@@ -140,12 +151,31 @@
       when:
         - not containerized_deployment
 
+    - name: start ceph mgr
+      systemd:
+        name: ceph-mgr@{{ ansible_hostname }}
+        state: started
+        enabled: yes
+      ignore_errors: True # if no mgr collocated with mons
+      when:
+        - not containerized_deployment
+
     - name: restart containerized ceph mon
       systemd:
         name: ceph-mon@{{ monitor_name }}
         state: restarted
         enabled: yes
         daemon_reload: yes
+      when:
+        - containerized_deployment
+
+    - name: restart containerized ceph mgr
+      systemd:
+        name: ceph-mgr@{{ monitor_name }}
+        state: restarted
+        enabled: yes
+        daemon_reload: yes
+      ignore_errors: True # if no mgr collocated with mons
       when:
         - containerized_deployment
 

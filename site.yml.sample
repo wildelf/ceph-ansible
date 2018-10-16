@@ -97,6 +97,7 @@
     - role: ceph-config
       tags: ['ceph_update_config']
     - role: ceph-mon
+    - role: ceph-mgr
   post_tasks:
     - name: set ceph monitor install 'Complete'
       run_once: true

@@ -92,6 +92,7 @@
     - role: ceph-config
       tags: ['ceph_update_config']
     - role: ceph-mon
+    - role: ceph-mgr
   serial: 1 # MUST be '1' WHEN DEPLOYING MONITORS ON DOCKER CONTAINERS
 
 - hosts: mons
