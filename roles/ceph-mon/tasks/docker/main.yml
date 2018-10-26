@@ -118,5 +118,4 @@
       - "{{ groups.get(mgr_group_name, []) | length > 0 }}"
 
   when:
-    - not rolling_update
     - inventory_hostname == groups[mon_group_name]|last
